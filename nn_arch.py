@@ -6,8 +6,8 @@ import keras.backend as K
 
 
 def dnn(embed_input1, embed_input2):
-    da1 = Dense(300, activation='relu')
-    da2 = Dense(300, activation='relu')
+    da1 = Dense(200, activation='relu')
+    da2 = Dense(200, activation='relu')
     da3 = Dense(1, activation='sigmoid')
     x = Lambda(lambda a: K.mean(a, axis=1))(embed_input1)
     x = da1(x)
@@ -18,14 +18,14 @@ def dnn(embed_input1, embed_input2):
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
-    z = Dropout(0.2)(z)
+    z = Dropout(0.5)(z)
     return da3(z)
 
 
 def cnn(embed_input1, embed_input2):
-    ca1 = Conv1D(filters=32, kernel_size=1, padding='same', activation='relu')
-    ca2 = Conv1D(filters=32, kernel_size=2, padding='same', activation='relu')
-    ca3 = Conv1D(filters=32, kernel_size=3, padding='same', activation='relu')
+    ca1 = Conv1D(filters=64, kernel_size=1, padding='same', activation='relu')
+    ca2 = Conv1D(filters=64, kernel_size=2, padding='same', activation='relu')
+    ca3 = Conv1D(filters=64, kernel_size=3, padding='same', activation='relu')
     da = Dense(1, activation='sigmoid')
     x1 = ca1(embed_input1)
     x1 = BatchNormalization()(x1)
@@ -50,12 +50,12 @@ def cnn(embed_input1, embed_input2):
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
-    z = Dropout(0.2)(z)
+    z = Dropout(0.5)(z)
     return da(z)
 
 
 def rnn(embed_input1, embed_input2):
-    ra = LSTM(300, activation='tanh')
+    ra = LSTM(200, activation='tanh')
     da = Dense(1, activation='sigmoid')
     x = Masking()(embed_input1)
     x = ra(x)
@@ -64,5 +64,5 @@ def rnn(embed_input1, embed_input2):
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
-    z = Dropout(0.2)(z)
+    z = Dropout(0.5)(z)
     return da(z)
