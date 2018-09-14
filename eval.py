@@ -50,9 +50,9 @@ def test_pair(name, pairs, flags, thre):
     probs = np.reshape(probs, (1, -1))[0]
     preds = probs > thre
     print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(flags, preds)))
-    for flag, text1, text2, pred in zip(flags, text1s, text2s, preds):
+    for flag, prob, text1, text2, pred in zip(flags, probs, text1s, text2s, preds):
         if flag != pred:
-            print('{}: {}, {}'.format(flag, text1, text2))
+            print('{} {:.3f} {} | {}'.format(flag, prob, text1, text2))
 
 
 def test(name, test_sents, test_labels, train_sents, train_labels):

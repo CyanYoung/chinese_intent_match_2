@@ -1,6 +1,6 @@
 from keras.layers import Dense, Conv1D, LSTM
-from keras.layers import Dropout, GlobalMaxPooling1D, BatchNormalization
-from keras.layers import Lambda, Concatenate, Subtract, Multiply, Masking
+from keras.layers import Dropout, GlobalMaxPooling1D, BatchNormalization, Masking
+from keras.layers import Lambda, Concatenate, Subtract, Multiply
 
 import keras.backend as K
 
