@@ -1,4 +1,4 @@
-## Chinese Response Match 2018-9
+## Chinese Intent Match 2018-9
 
 #### 1.preprocess
 
