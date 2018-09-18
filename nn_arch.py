@@ -1,4 +1,4 @@
-from keras.layers import Dense, Conv1D, LSTM
+from keras.layers import Dense, SeparableConv1D, LSTM
 from keras.layers import Dropout, GlobalMaxPooling1D, BatchNormalization, Masking
 from keras.layers import Lambda, Concatenate, Subtract, Multiply
 
@@ -23,9 +23,9 @@ def dnn(embed_input1, embed_input2):
 
 
 def cnn(embed_input1, embed_input2):
-    ca1 = Conv1D(filters=64, kernel_size=1, padding='same', activation='relu')
-    ca2 = Conv1D(filters=64, kernel_size=2, padding='same', activation='relu')
-    ca3 = Conv1D(filters=64, kernel_size=3, padding='same', activation='relu')
+    ca1 = SeparableConv1D(filters=64, kernel_size=1, padding='same', activation='relu')
+    ca2 = SeparableConv1D(filters=64, kernel_size=2, padding='same', activation='relu')
+    ca3 = SeparableConv1D(filters=64, kernel_size=3, padding='same', activation='relu')
     da = Dense(1, activation='sigmoid')
     x1 = ca1(embed_input1)
     x1 = BatchNormalization()(x1)
