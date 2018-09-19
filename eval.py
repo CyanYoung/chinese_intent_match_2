@@ -6,7 +6,7 @@ from keras.models import load_model
 
 from sklearn.metrics import accuracy_score
 
-from util import flat_read, map_path, map_model
+from util import flat_read, map_item
 
 
 path_test = 'data/test.csv'
@@ -38,13 +38,13 @@ paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
          'rnn': 'model/rnn.h5'}
 
-models = {'dnn': load_model(map_path('dnn', paths)),
-          'cnn': load_model(map_path('cnn', paths)),
-          'rnn': load_model(map_path('rnn', paths))}
+models = {'dnn': load_model(map_item('dnn', paths)),
+          'cnn': load_model(map_item('cnn', paths)),
+          'rnn': load_model(map_item('rnn', paths))}
 
 
 def test_pair(name, pairs, flags, thre):
-    model = map_model(name, models)
+    model = map_item(name, models)
     sent1s, sent2s = pairs
     probs = model.predict([sent1s, sent2s])
     probs = np.reshape(probs, (1, -1))[0]
@@ -56,7 +56,7 @@ def test_pair(name, pairs, flags, thre):
 
 
 def test(name, test_sents, test_labels, train_sents, train_labels):
-    model = map_model(name, models)
+    model = map_item(name, models)
     preds = list()
     for test_sent in test_sents:
         test_mat = np.repeat([test_sent], len(train_sents), axis=0)
@@ -71,9 +71,9 @@ def test(name, test_sents, test_labels, train_sents, train_labels):
 
 
 if __name__ == '__main__':
-    # test_pair('dnn', pairs, flags, thre=0.5)
-    # test_pair('cnn', pairs, flags, thre=0.5)
-    # test_pair('rnn', pairs, flags, thre=0.5)
-    # test('dnn', test_sents, test_labels, train_sents, train_labels)
-    # test('cnn', test_sents, test_labels, train_sents, train_labels)
+    test_pair('dnn', pairs, flags, thre=0.5)
+    test_pair('cnn', pairs, flags, thre=0.5)
+    test_pair('rnn', pairs, flags, thre=0.5)
+    test('dnn', test_sents, test_labels, train_sents, train_labels)
+    test('cnn', test_sents, test_labels, train_sents, train_labels)
     test('rnn', test_sents, test_labels, train_sents, train_labels)

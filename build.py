@@ -7,7 +7,7 @@ from keras.callbacks import ModelCheckpoint
 
 from nn_arch import dnn, cnn, rnn
 
-from util import map_path, map_func
+from util import map_item
 
 
 batch_size = 32
@@ -39,7 +39,7 @@ def compile(name, embed_mat, seq_len):
     input2 = Input(shape=(seq_len,), dtype='int32')
     embed_input1 = embed(input1)
     embed_input2 = embed(input2)
-    func = map_func(name, funcs)
+    func = map_item(name, funcs)
     output = func(embed_input1, embed_input2)
     model = Model([input1, input2], output)
     model.summary()
@@ -51,7 +51,7 @@ def fit(name, epoch, embed_mat, pairs, flags):
     sent1s, sent2s = pairs
     seq_len = len(sent1s[0])
     model = compile(name, embed_mat, seq_len)
-    check_point = ModelCheckpoint(map_path(name, paths), monitor='val_loss', verbose=True, save_best_only=True)
+    check_point = ModelCheckpoint(map_item(name, paths), monitor='val_loss', verbose=True, save_best_only=True)
     model.fit([sent1s, sent2s], flags, batch_size=batch_size, epochs=epoch,
               verbose=True, callbacks=[check_point], validation_split=0.2)
 

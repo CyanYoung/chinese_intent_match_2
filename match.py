@@ -7,8 +7,7 @@ import numpy as np
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 
-from util import load_word_re, load_type_re, load_word_pair, word_replace, flat_read
-from util import map_path, map_model
+from util import load_word_re, load_type_re, load_word_pair, word_replace, flat_read, map_item
 
 
 seq_len = 30
@@ -38,9 +37,9 @@ paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
          'rnn': 'model/rnn.h5'}
 
-models = {'dnn': load_model(map_path('dnn', paths)),
-          'cnn': load_model(map_path('cnn', paths)),
-          'rnn': load_model(map_path('rnn', paths))}
+models = {'dnn': load_model(map_item('dnn', paths)),
+          'cnn': load_model(map_item('cnn', paths)),
+          'rnn': load_model(map_item('rnn', paths))}
 
 
 def predict(text, name):
@@ -51,7 +50,7 @@ def predict(text, name):
     text = word_replace(text, syno_dict)
     seq = word2ind.texts_to_sequences([text])[0]
     pad_seq = pad_sequences([seq], maxlen=seq_len)
-    model = map_model(name, models)
+    model = map_item(name, models)
     pad_mat = np.repeat(pad_seq, len(sents), axis=0)
     probs = model.predict([pad_mat, sents])
     probs = np.reshape(probs, (1, -1))[0]
