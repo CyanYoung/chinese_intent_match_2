@@ -2,7 +2,7 @@
 
 #### 1.preprocess
 
-prepare() 将按类文件保存的数据原地去重，去除停用词，统一替换地区、时间
+prepare() 将按类文件保存的数据原地去重，去除停用词，统一替换地区、时间等
 
 特殊词，merge() 将数据汇总、打乱，保存为 (text, label) 格式
 
@@ -16,11 +16,11 @@ vectorize() 和 vectorize_pair() 分别进行向量化，不处理 label、flag
 
 #### 3.build
 
-train 80% / dev 20% 划分，分别使用 dnn、cnn、rnn 构建匹配模型
+train 80% / dev 20% 划分，分别通过 dnn、cnn、rnn 构建匹配模型
 
 #### 4.match
 
-predict() 去除停用词，统一替换地区、时间特殊词，输出相似概率前 3 的语句
+predict() 去除停用词，统一替换地区、时间等特殊词，输出相似概率前 3 的语句
 
 #### 5.eval
 

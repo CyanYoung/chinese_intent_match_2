@@ -71,9 +71,9 @@ def test(name, test_sents, test_labels, train_sents, train_labels):
 
 
 if __name__ == '__main__':
-    test_pair('dnn', pairs, flags, thre=0.5)
-    test_pair('cnn', pairs, flags, thre=0.5)
-    test_pair('rnn', pairs, flags, thre=0.5)
-    test('dnn', test_sents, test_labels, train_sents, train_labels)
-    test('cnn', test_sents, test_labels, train_sents, train_labels)
-    test('dnn', test_sents, test_labels, train_sents, train_labels)
+    # test_pair('dnn', pairs, flags, thre=0.5)
+    # test_pair('cnn', pairs, flags, thre=0.5)
+    # test_pair('rnn', pairs, flags, thre=0.5)
+    # test('dnn', test_sents, test_labels, train_sents, train_labels)
+    # test('cnn', test_sents, test_labels, train_sents, train_labels)
+    test('rnn', test_sents, test_labels, train_sents, train_labels)
