@@ -4,6 +4,7 @@ from keras.models import Model
 from keras.layers import Input, Embedding
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
+from keras.utils import plot_model
 
 from nn_arch import dnn, cnn, rnn
 
@@ -28,7 +29,10 @@ funcs = {'dnn': dnn,
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
-         'rnn': 'model/rnn.h5'}
+         'rnn': 'model/rnn.h5',
+         'dnn_plot': 'model/plot/dnn.png',
+         'cnn_plot': 'model/plot/cnn.png',
+         'rnn_plot': 'model/plot/rnn.png'}
 
 
 def compile(name, embed_mat, seq_len):
@@ -43,6 +47,7 @@ def compile(name, embed_mat, seq_len):
     output = func(embed_input1, embed_input2)
     model = Model([input1, input2], output)
     model.summary()
+    plot_model(model, map_item(name + '_plot', paths), show_shapes=True)
     model.compile(loss='binary_crossentropy', optimizer=Adam(lr=0.001), metrics=['accuracy'])
     return model
 
@@ -57,6 +62,6 @@ def fit(name, epoch, embed_mat, pairs, flags):
 
 
 if __name__ == '__main__':
-    fit('dnn', 10, embed_mat, pairs, flags)
-    fit('cnn', 20, embed_mat, pairs, flags)
+    # fit('dnn', 10, embed_mat, pairs, flags)
+    # fit('cnn', 20, embed_mat, pairs, flags)
     fit('rnn', 10, embed_mat, pairs, flags)
