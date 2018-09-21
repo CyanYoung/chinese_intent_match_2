@@ -50,8 +50,10 @@ def predict(text, name):
     text = word_replace(text, syno_dict)
     seq = word2ind.texts_to_sequences([text])[0]
     pad_seq = pad_sequences([seq], maxlen=seq_len)
-    model = map_item(name, models)
+    print(pad_seq.shape)
     pad_mat = np.repeat(pad_seq, len(sents), axis=0)
+    print(pad_mat.shape)
+    model = map_item(name, models)
     probs = model.predict([pad_mat, sents])
     probs = np.reshape(probs, (1, -1))[0]
     max_probs = sorted(probs, reverse=True)[:3]

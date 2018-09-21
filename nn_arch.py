@@ -1,5 +1,5 @@
 from keras.layers import Dense, SeparableConv1D, LSTM
-from keras.layers import Dropout, GlobalMaxPooling1D, BatchNormalization, Masking
+from keras.layers import Dropout, GlobalMaxPooling1D, Masking
 from keras.layers import Lambda, Concatenate, Subtract, Multiply
 
 import keras.backend as K
@@ -26,30 +26,23 @@ def cnn(embed_input1, embed_input2):
     ca1 = SeparableConv1D(filters=64, kernel_size=1, padding='same', activation='relu')
     ca2 = SeparableConv1D(filters=64, kernel_size=2, padding='same', activation='relu')
     ca3 = SeparableConv1D(filters=64, kernel_size=3, padding='same', activation='relu')
-    bn = BatchNormalization()
     mp = GlobalMaxPooling1D()
     concat1 = Concatenate()
     concat2 = Concatenate()
     da1 = Dense(200, activation='relu')
     da2 = Dense(1, activation='sigmoid')
     x1 = ca1(embed_input1)
-    x1 = bn(x1)
     x1 = mp(x1)
     x2 = ca2(embed_input1)
-    x2 = bn(x2)
     x2 = mp(x2)
     x3 = ca3(embed_input1)
-    x3 = bn(x3)
     x3 = mp(x3)
     x = concat1([x1, x2, x3])
     y1 = ca1(embed_input2)
-    y1 = bn(y1)
     y1 = mp(y1)
     y2 = ca2(embed_input2)
-    y2 = bn(y2)
     y2 = mp(y2)
     y3 = ca3(embed_input2)
-    y3 = bn(y3)
     y3 = mp(y3)
     y = concat1([y1, y2, y3])
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
