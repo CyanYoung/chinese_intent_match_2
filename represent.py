@@ -49,7 +49,6 @@ def vectorize(path_data, path_sent, path_label, mode):
     if mode == 'train':
         embed(sents, path_word2ind, path_word_vec, path_embed)
     pad_seqs = align(sents, path_word2ind)
-    labels = np.array(labels)
     with open(path_sent, 'wb') as f:
         pk.dump(pad_seqs, f)
     with open(path_label, 'wb') as f:
