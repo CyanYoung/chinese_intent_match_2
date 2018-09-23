@@ -97,7 +97,6 @@ def prepare(path_univ_dir):
                 if text not in text_set:
                     text_set.add(text)
                     texts.append(text)
-        shuffle(texts)
         with open(os.path.join(path_univ_dir, file), 'w') as f:
             for text in texts:
                 f.write(text + '\n')
