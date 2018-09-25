@@ -25,6 +25,12 @@ def save_pair(path, pairs):
             f.write(text1 + ',' + text2 + ',' + str(flag) + '\n')
 
 
+def insert(pairs, pos_text, neg_texts, neg_fold):
+    sub_texts = sample(neg_texts, neg_fold)
+    for neg_text in sub_texts:
+        pairs.append((pos_text, neg_text, 0))
+
+
 def make_pair(path_univ_dir, path_train_pair, path_test_pair):
     labels = list()
     label_texts = dict()
@@ -36,20 +42,21 @@ def make_pair(path_univ_dir, path_train_pair, path_test_pair):
         with open(os.path.join(path_univ_dir, file), 'r') as f:
             for line in f:
                 label_texts[label].append(line.strip())
+    neg_fold = 2
+    res_fold = 1
     pairs = list()
-    fold = 2  # neg / pos
+    res_texts = label_texts['其它']
     for i in range(len(labels)):
-        texts = label_texts[labels[i]]
-        rest_texts = list()
+        pos_texts = label_texts[labels[i]]
+        neg_texts = list()
         for j in range(len(labels)):
-            if j != i:
-                rest_texts.extend(label_texts[labels[j]])
-        for j in range(len(texts) - 1):
-            for k in range(j + 1, len(texts)):
-                pairs.append((texts[j], texts[k], 1))
-                neg_texts = sample(rest_texts, fold)
-                for neg_text in neg_texts:
-                    pairs.append((texts[j], neg_text, 0))
+            if j != i and labels[j] != '其它':
+                neg_texts.extend(label_texts[labels[j]])
+        for j in range(len(pos_texts) - 1):
+            for k in range(j + 1, len(pos_texts)):
+                pairs.append((pos_texts[j], pos_texts[k], 1))
+                insert(pairs, pos_texts[i], neg_texts, neg_fold)
+                insert(pairs, pos_texts[i], res_texts, res_fold)
     shuffle(pairs)
     bound = int(len(pairs) * 0.9)
     save_pair(path_train_pair, pairs[:bound])
