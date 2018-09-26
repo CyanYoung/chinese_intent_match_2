@@ -6,7 +6,7 @@ from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 from keras.utils import plot_model
 
-from nn_arch import dnn, cnn, rnn
+from nn_arch import dnn_build, cnn_build, rnn_build
 
 from util import map_item
 
@@ -23,31 +23,31 @@ with open(path_pair, 'rb') as f:
 with open(path_flag, 'rb') as f:
     flags = pk.load(f)
 
-funcs = {'dnn': dnn,
-         'cnn': cnn,
-         'rnn': rnn}
+funcs = {'dnn': dnn_build,
+         'cnn': cnn_build,
+         'rnn': rnn_build}
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
          'rnn': 'model/rnn.h5',
-         'dnn_plot': 'model/plot/dnn.png',
-         'cnn_plot': 'model/plot/cnn.png',
-         'rnn_plot': 'model/plot/rnn.png'}
+         'dnn_plot': 'model/plot/dnn_build.png',
+         'cnn_plot': 'model/plot/cnn_build.png',
+         'rnn_plot': 'model/plot/rnn_build.png'}
 
 
 def compile(name, embed_mat, seq_len):
     vocab_num, embed_len = embed_mat.shape
     embed = Embedding(input_dim=vocab_num, output_dim=embed_len,
                       weights=[embed_mat], input_length=seq_len, trainable=True)
-    input1 = Input(shape=(seq_len,), dtype='int32')
-    input2 = Input(shape=(seq_len,), dtype='int32')
+    input1 = Input(shape=(seq_len,))
+    input2 = Input(shape=(seq_len,))
     embed_input1 = embed(input1)
     embed_input2 = embed(input2)
     func = map_item(name, funcs)
     output = func(embed_input1, embed_input2)
     model = Model([input1, input2], output)
     model.summary()
-    # plot_model(model, map_item(name + '_plot', paths), show_shapes=True)
+    plot_model(model, map_item(name + '_plot', paths), show_shapes=True)
     model.compile(loss='binary_crossentropy', optimizer=Adam(lr=0.001), metrics=['accuracy'])
     return model
 
