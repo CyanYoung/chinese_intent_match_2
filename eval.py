@@ -6,23 +6,16 @@ from keras.models import load_model
 
 from sklearn.metrics import accuracy_score
 
+from match import predict
+
 from util import flat_read, map_item
 
 
 path_test = 'data/test.csv'
-path_train_sent = 'feat/sent_train.pkl'
-path_train_label = 'feat/label_train.pkl'
-path_test_sent = 'feat/sent_test.pkl'
-path_test_label = 'feat/label_test.pkl'
+path_label = 'feat/label_test.pkl'
 texts = flat_read(path_test, 'text')
-with open(path_train_sent, 'rb') as f:
-    train_sents = pk.load(f)
-with open(path_train_label, 'rb') as f:
-    train_labels = pk.load(f)
-with open(path_test_sent, 'rb') as f:
-    test_sents = pk.load(f)
-with open(path_test_label, 'rb') as f:
-    test_labels = pk.load(f)
+with open(path_label, 'rb') as f:
+    labels = pk.load(f)
 
 path_test_pair = 'data/test_pair.csv'
 path_pair = 'feat/pair_train.pkl'
@@ -55,17 +48,12 @@ def test_pair(name, pairs, flags, thre):
             print('{} {:.3f} {} | {}'.format(flag, prob, text1, text2))
 
 
-def test(name, test_sents, test_labels, train_sents, train_labels):
-    model = map_item(name, models)
+def test(name, texts, labels):
     preds = list()
-    for test_sent in test_sents:
-        test_mat = np.repeat([test_sent], len(train_sents), axis=0)
-        probs = model.predict([test_mat, train_sents])
-        probs = np.reshape(probs, (1, -1))[0]
-        max_ind = np.argmax(probs)
-        preds.append(train_labels[max_ind])
-    print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(test_labels, preds)))
-    for text, label, pred in zip(texts, test_labels, preds):
+    for text in texts:
+        preds.append(predict(text, name))
+    print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(labels, preds)))
+    for text, label, pred in zip(texts, labels, preds):
         if label != pred:
             print('{}: {} -> {}'.format(text, label, pred))
 
@@ -74,6 +62,6 @@ if __name__ == '__main__':
     test_pair('dnn', pairs, flags, thre=0.5)
     test_pair('cnn', pairs, flags, thre=0.5)
     test_pair('rnn', pairs, flags, thre=0.5)
-    test('dnn', test_sents, test_labels, train_sents, train_labels)
-    test('cnn', test_sents, test_labels, train_sents, train_labels)
-    test('rnn', test_sents, test_labels, train_sents, train_labels)
+    test('dnn', texts, labels)
+    test('cnn', texts, labels)
+    test('rnn', texts, labels)

@@ -104,11 +104,14 @@ def predict(text, name):
     max_probs = sorted(probs, reverse=True)[:3]
     max_inds = np.argsort(-probs)[:3]
     max_preds = [labels[ind] for ind in max_inds]
-    max_texts = [texts[ind] for ind in max_inds]
-    formats = list()
-    for pred, prob, text in zip(max_preds, max_probs, max_texts):
-        formats.append('{} {:.3f} {}'.format(pred, prob, text))
-    return ', '.join(formats)
+    if __name__ == '__main__':
+        max_texts = [texts[ind] for ind in max_inds]
+        formats = list()
+        for pred, prob, text in zip(max_preds, max_probs, max_texts):
+            formats.append('{} {:.3f} {}'.format(pred, prob, text))
+        return ', '.join(formats)
+    else:
+        return max_preds[0]
 
 
 if __name__ == '__main__':
