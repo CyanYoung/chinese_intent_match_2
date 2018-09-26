@@ -45,18 +45,19 @@ def make_pair(path_univ_dir, path_train_pair, path_test_pair):
     neg_fold = 2
     res_fold = 1
     pairs = list()
-    res_texts = label_texts['其它']
+    res_texts = label_texts.pop('其它')
+    labels.remove('其它')
     for i in range(len(labels)):
         pos_texts = label_texts[labels[i]]
         neg_texts = list()
         for j in range(len(labels)):
-            if j != i and labels[j] != '其它':
+            if j != i:
                 neg_texts.extend(label_texts[labels[j]])
         for j in range(len(pos_texts) - 1):
             for k in range(j + 1, len(pos_texts)):
                 pairs.append((pos_texts[j], pos_texts[k], 1))
-                insert(pairs, pos_texts[i], neg_texts, neg_fold)
-                insert(pairs, pos_texts[i], res_texts, res_fold)
+                insert(pairs, pos_texts[j], neg_texts, neg_fold)
+                insert(pairs, pos_texts[j], res_texts, res_fold)
     shuffle(pairs)
     bound = int(len(pairs) * 0.9)
     save_pair(path_train_pair, pairs[:bound])
