@@ -72,7 +72,7 @@ def save(path, texts, labels):
             f.write(text + ',' + label + '\n')
 
 
-def merge(path_univ_dir, path_train, path_test):
+def gather(path_univ_dir, path_train, path_test):
     texts = list()
     labels = list()
     files = os.listdir(path_univ_dir)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     prepare(path_univ_dir)
     path_train = 'data/train.csv'
     path_test = 'data/test.csv'
-    merge(path_univ_dir, path_train, path_test)
+    gather(path_univ_dir, path_train, path_test)
     path_train_pair = 'data/train_pair.csv'
     path_test_pair = 'data/test_pair.csv'
     make_pair(path_univ_dir, path_train_pair, path_test_pair)
