@@ -2,6 +2,8 @@ import os
 
 import re
 
+import pandas as pd
+
 from random import shuffle, sample
 
 from util import load_word_re, load_type_re, load_word_pair, word_replace
@@ -25,13 +27,21 @@ def save_pair(path, pairs):
             f.write(text1 + ',' + text2 + ',' + str(flag) + '\n')
 
 
+def extend(pairs, path_extra_pair):
+    extra_pairs = list()
+    for text1, text2, flag in pd.read_csv(path_extra_pair).values:
+        extra_pairs.append((text1, text2, flag))
+    shuffle(extra_pairs)
+    return extra_pairs + pairs
+
+
 def insert(pairs, text, neg_texts, neg_fold):
     sub_texts = sample(neg_texts, neg_fold)
     for neg_text in sub_texts:
         pairs.append((text, neg_text, 0))
 
 
-def make_pair(path_univ_dir, path_train_pair, path_test_pair):
+def make_pair(path_univ_dir, path_train_pair, path_test_pair, path_extra_pair):
     labels = list()
     label_texts = dict()
     files = os.listdir(path_univ_dir)
@@ -60,7 +70,8 @@ def make_pair(path_univ_dir, path_train_pair, path_test_pair):
                 insert(pairs, texts[j], res_texts, res_fold)
     shuffle(pairs)
     bound = int(len(pairs) * 0.9)
-    save_pair(path_train_pair, pairs[:bound])
+    train_pairs = extend(pairs[:bound], path_extra_pair)
+    save_pair(path_train_pair, train_pairs)
     save_pair(path_test_pair, pairs[bound:])
 
 
@@ -118,4 +129,5 @@ if __name__ == '__main__':
     gather(path_univ_dir, path_train, path_test)
     path_train_pair = 'data/train_pair.csv'
     path_test_pair = 'data/test_pair.csv'
-    make_pair(path_univ_dir, path_train_pair, path_test_pair)
+    path_extra_pair = 'data/extra_pair.csv'
+    make_pair(path_univ_dir, path_train_pair, path_test_pair, path_extra_pair)
