@@ -36,7 +36,7 @@ def embed(sents, path_word2ind, path_word_vec, path_embed):
         pk.dump(embed_mat, f)
 
 
-def align(sents, path_word2ind):
+def align(sents):
     with open(path_word2ind, 'rb') as f:
         model = pk.load(f)
     seqs = model.texts_to_sequences(sents)
@@ -48,7 +48,7 @@ def vectorize(path_data, path_sent, path_label, mode):
     labels = flat_read(path_data, 'label')
     if mode == 'train':
         embed(sents, path_word2ind, path_word_vec, path_embed)
-    pad_seqs = align(sents, path_word2ind)
+    pad_seqs = align(sents)
     with open(path_sent, 'wb') as f:
         pk.dump(pad_seqs, f)
     with open(path_label, 'wb') as f:
@@ -59,8 +59,8 @@ def vectorize_pair(path_data, path_pair, path_flag):
     sent1s = flat_read(path_data, 'text1')
     sent2s = flat_read(path_data, 'text2')
     flags = flat_read(path_data, 'flag')
-    pad_seq1s = align(sent1s, path_word2ind)
-    pad_seq2s = align(sent2s, path_word2ind)
+    pad_seq1s = align(sent1s)
+    pad_seq2s = align(sent2s)
     pairs = (pad_seq1s, pad_seq2s)
     flags = np.array(flags)
     with open(path_pair, 'wb') as f:
