@@ -13,7 +13,7 @@ from nn_arch import merge
 
 from encode import load_model
 
-from util import load_word_re, load_type_re, load_word_pair, word_replace, flat_read, map_item
+from util import load_word_re, load_type_re, load_pair, word_replace, flat_read, map_item
 
 
 def define_merge(name):
@@ -45,8 +45,8 @@ path_homo = 'dict/homonym.csv'
 path_syno = 'dict/synonym.csv'
 stop_word_re = load_word_re(path_stop_word)
 word_type_re = load_type_re(path_type_dir)
-homo_dict = load_word_pair(path_homo)
-syno_dict = load_word_pair(path_syno)
+homo_dict = load_pair(path_homo)
+syno_dict = load_pair(path_syno)
 
 path_train = 'data/train.csv'
 path_sent = 'feat/sent_train.pkl'
