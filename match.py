@@ -4,6 +4,8 @@ import re
 
 import numpy as np
 
+from collections import Counter
+
 from keras.models import Model
 from keras.layers import Input
 
@@ -86,7 +88,7 @@ models = {'dnn': load_model('dnn', embed_mat, seq_len),
           'rnn_merge': load_merge('rnn')}
 
 
-def predict(text, name):
+def predict(text, name, vote):
     text = re.sub(stop_word_re, '', text.strip())
     for word_type, word_re in word_type_re.items():
         text = re.sub(word_re, word_type, text)
@@ -101,8 +103,8 @@ def predict(text, name):
     model = map_item(name + '_merge', models)
     probs = model.predict([encode_mat, cache_sents])
     probs = np.reshape(probs, (1, -1))[0]
-    max_probs = sorted(probs, reverse=True)[:3]
-    max_inds = np.argsort(-probs)[:3]
+    max_probs = sorted(probs, reverse=True)[:vote]
+    max_inds = np.argsort(-probs)[:vote]
     max_preds = [labels[ind] for ind in max_inds]
     if __name__ == '__main__':
         max_texts = [texts[ind] for ind in max_inds]
@@ -111,12 +113,13 @@ def predict(text, name):
             formats.append('{} {:.3f} {}'.format(pred, prob, text))
         return ', '.join(formats)
     else:
-        return max_preds[0]
+        pairs = Counter(max_preds)
+        return pairs.most_common()[0][0]
 
 
 if __name__ == '__main__':
     while True:
         text = input('text: ')
-        print('dnn: %s' % predict(text, 'dnn'))
-        print('cnn: %s' % predict(text, 'cnn'))
-        print('rnn: %s' % predict(text, 'rnn'))
+        print('dnn: %s' % predict(text, 'dnn', vote=3))
+        print('cnn: %s' % predict(text, 'cnn', vote=3))
+        print('rnn: %s' % predict(text, 'rnn', vote=3))
