@@ -48,10 +48,10 @@ def test_pair(name, pairs, flags, thre):
             print('{} {:.3f} {} | {}'.format(flag, prob, text1, text2))
 
 
-def test(name, texts, labels):
+def test(name, texts, labels, vote):
     preds = list()
     for text in texts:
-        preds.append(predict(text, name))
+        preds.append(predict(text, name, vote))
     print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(labels, preds)))
     for text, label, pred in zip(texts, labels, preds):
         if label != pred:
@@ -62,6 +62,6 @@ if __name__ == '__main__':
     test_pair('dnn', pairs, flags, thre=0.5)
     test_pair('cnn', pairs, flags, thre=0.5)
     test_pair('rnn', pairs, flags, thre=0.5)
-    test('dnn', texts, labels)
-    test('cnn', texts, labels)
-    test('rnn', texts, labels)
+    test('dnn', texts, labels, vote=3)
+    test('cnn', texts, labels, vote=3)
+    test('rnn', texts, labels, vote=3)
