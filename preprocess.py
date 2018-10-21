@@ -53,10 +53,7 @@ def make_pair(path_univ_dir, path_train_pair, path_test_pair, path_extra_pair):
             for line in f:
                 label_texts[label].append(line.strip())
     neg_fold = 2
-    res_fold = 1
     pairs = list()
-    res_texts = label_texts.pop('其它')
-    labels.remove('其它')
     for i in range(len(labels)):
         texts = label_texts[labels[i]]
         neg_texts = list()
@@ -66,8 +63,9 @@ def make_pair(path_univ_dir, path_train_pair, path_test_pair, path_extra_pair):
         for j in range(len(texts) - 1):
             for k in range(j + 1, len(texts)):
                 pairs.append((texts[j], texts[k], 1))
-                insert(pairs, texts[j], neg_texts, neg_fold)
-                insert(pairs, texts[j], res_texts, res_fold)
+                sub_texts = sample(neg_texts, neg_fold)
+                for neg_text in sub_texts:
+                    pairs.append((texts[j], neg_text, 0))
     shuffle(pairs)
     bound = int(len(pairs) * 0.9)
     train_pairs = extend(pairs[:bound], path_extra_pair)
