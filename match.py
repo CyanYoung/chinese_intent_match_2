@@ -120,6 +120,6 @@ def predict(text, name, vote):
 if __name__ == '__main__':
     while True:
         text = input('text: ')
-        print('dnn: %s' % predict(text, 'dnn', vote=3))
-        print('cnn: %s' % predict(text, 'cnn', vote=3))
-        print('rnn: %s' % predict(text, 'rnn', vote=3))
+        print('dnn: %s' % predict(text, 'dnn', vote=5))
+        print('cnn: %s' % predict(text, 'cnn', vote=5))
+        print('rnn: %s' % predict(text, 'rnn', vote=5))
