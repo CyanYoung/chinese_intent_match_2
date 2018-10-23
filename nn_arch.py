@@ -39,8 +39,7 @@ def cnn_build(embed_input1, embed_input2):
     mp = GlobalMaxPooling1D()
     concat1 = Concatenate()
     concat2 = Concatenate()
-    da1 = Dense(200, activation='relu', name='classify1')
-    da2 = Dense(1, activation='sigmoid', name='classify2')
+    da = Dense(1, activation='sigmoid', name='classify')
     x1 = ca1(embed_input1)
     x1 = mp(x1)
     x2 = ca2(embed_input1)
@@ -58,9 +57,8 @@ def cnn_build(embed_input1, embed_input2):
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
     prod = Multiply()([x, y])
     z = concat2([x, y, diff, prod])
-    z = da1(x)
     z = Dropout(0.5)(z)
-    return da2(z)
+    return da(z)
 
 
 def cnn_cache(embed_input):
