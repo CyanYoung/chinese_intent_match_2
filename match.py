@@ -18,8 +18,7 @@ from encode import load_model
 from util import load_word_re, load_type_re, load_pair, word_replace, flat_read, map_item
 
 
-def define_merge(name):
-    encode_len = map_item(name, encode_lens)
+def define_merge(encode_len):
     input1 = Input(shape=(encode_len,))
     input2 = Input(shape=(encode_len,))
     output = merge(input1, input2)
@@ -27,8 +26,8 @@ def define_merge(name):
     return model
 
 
-def load_merge(name):
-    model = define_merge(name)
+def load_merge(name, encode_len):
+    model = define_merge(encode_len)
     model.load_weights(map_item(name, paths), by_name=True)
     return model
 
@@ -40,6 +39,7 @@ def load_cache(path_cache):
 
 
 seq_len = 30
+encode_len = 200
 
 path_stop_word = 'dict/stop_word.txt'
 path_type_dir = 'dict/word_type'
@@ -72,10 +72,6 @@ paths = {'dnn': 'model/dnn.h5',
          'cnn_cache': 'cache/cnn.pkl',
          'rnn_cache': 'cache/rnn.pkl'}
 
-encode_lens = {'dnn': 200,
-               'cnn': 192,
-               'rnn': 200}
-
 caches = {'dnn': load_cache(map_item('dnn_cache', paths)),
           'cnn': load_cache(map_item('cnn_cache', paths)),
           'rnn': load_cache(map_item('rnn_cache', paths))}
@@ -83,9 +79,9 @@ caches = {'dnn': load_cache(map_item('dnn_cache', paths)),
 models = {'dnn': load_model('dnn', embed_mat, seq_len),
           'cnn': load_model('cnn', embed_mat, seq_len),
           'rnn': load_model('rnn', embed_mat, seq_len),
-          'dnn_merge': load_merge('dnn'),
-          'cnn_merge': load_merge('cnn'),
-          'rnn_merge': load_merge('rnn')}
+          'dnn_merge': load_merge('dnn', encode_len),
+          'cnn_merge': load_merge('cnn', encode_len),
+          'rnn_merge': load_merge('rnn', encode_len)}
 
 
 def predict(text, name, vote):
