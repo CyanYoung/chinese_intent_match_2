@@ -22,8 +22,7 @@ def define_merge(encode_len):
     input1 = Input(shape=(encode_len,))
     input2 = Input(shape=(encode_len,))
     output = merge(input1, input2)
-    model = Model([input1, input2], output)
-    return model
+    return Model([input1, input2], output)
 
 
 def load_merge(name, encode_len):
