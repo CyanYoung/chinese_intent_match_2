@@ -15,7 +15,7 @@ from nn_arch import merge
 
 from encode import load_model
 
-from util import load_word_re, load_type_re, load_pair, word_replace, flat_read, map_item
+from util import load_word_re, load_type_re, load_pair, word_replace, map_item
 
 
 def define_merge(encode_len):
@@ -33,8 +33,8 @@ def load_merge(name, encode_len):
 
 def load_cache(path_cache):
     with open(path_cache, 'rb') as f:
-        cache = pk.load(f)
-    return cache
+        core_sents = pk.load(f)
+    return core_sents
 
 
 seq_len = 30
@@ -49,20 +49,15 @@ word_type_re = load_type_re(path_type_dir)
 homo_dict = load_pair(path_homo)
 syno_dict = load_pair(path_syno)
 
-path_train = 'data/train.csv'
-path_sent = 'feat/sent_train.pkl'
-path_label = 'feat/label_train.pkl'
 path_embed = 'feat/embed.pkl'
 path_word2ind = 'model/word2ind.pkl'
-texts = flat_read(path_train, 'text')
-with open(path_sent, 'rb') as f:
-    sents = pk.load(f)
-with open(path_label, 'rb') as f:
-    labels = pk.load(f)
+path_label = 'cache/label.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 with open(path_word2ind, 'rb') as f:
     word2ind = pk.load(f)
+with open(path_label, 'rb') as f:
+    core_labels = pk.load(f)
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
@@ -89,23 +84,22 @@ def predict(text, name, vote):
         text = re.sub(word_re, word_type, text)
     text = word_replace(text, homo_dict)
     text = word_replace(text, syno_dict)
-    cache_sents = map_item(name, caches)
+    core_sents = map_item(name, caches)
     seq = word2ind.texts_to_sequences([text])[0]
     pad_seq = pad_sequences([seq], maxlen=seq_len)
     model = map_item(name, models)
     encode_seq = model.predict([pad_seq])
-    encode_mat = np.repeat(encode_seq, len(cache_sents), axis=0)
+    encode_mat = np.repeat(encode_seq, len(core_sents), axis=0)
     model = map_item(name + '_merge', models)
-    probs = model.predict([encode_mat, cache_sents])
+    probs = model.predict([encode_mat, core_sents])
     probs = np.reshape(probs, (1, -1))[0]
     max_probs = sorted(probs, reverse=True)[:vote]
     max_inds = np.argsort(-probs)[:vote]
-    max_preds = [labels[ind] for ind in max_inds]
+    max_preds = [core_labels[ind] for ind in max_inds]
     if __name__ == '__main__':
-        max_texts = [texts[ind] for ind in max_inds]
         formats = list()
-        for pred, prob, text in zip(max_preds, max_probs, max_texts):
-            formats.append('{} {:.3f} {}'.format(pred, prob, text))
+        for pred, prob in zip(max_preds, max_probs):
+            formats.append('{} {:.3f}'.format(pred, prob))
         return ', '.join(formats)
     else:
         pairs = Counter(max_preds)

@@ -36,13 +36,8 @@ seq_len = 30
 max_core = 5
 
 path_embed = 'feat/embed.pkl'
-path_sent = 'feat/sent_train.pkl'
-path_train = 'data/train.csv'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
-with open(path_sent, 'rb') as f:
-    sents = pk.load(f)
-labels = flat_read(path_train, 'label')
 
 funcs = {'dnn': dnn_cache,
          'cnn': cnn_cache,
@@ -51,9 +46,9 @@ funcs = {'dnn': dnn_cache,
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
          'rnn': 'model/rnn.h5',
-         'dnn_cache': 'cache/dnn.h5',
-         'cnn_cache': 'cache/cnn.h5',
-         'rnn_cache': 'cache/rnn.h5',
+         'dnn_cache': 'cache/dnn.pkl',
+         'cnn_cache': 'cache/cnn.pkl',
+         'rnn_cache': 'cache/rnn.pkl',
          'dnn_plot': 'model/plot/dnn_cache.png',
          'cnn_plot': 'model/plot/cnn_cache.png',
          'rnn_plot': 'model/plot/rnn_cache.png'}
@@ -63,45 +58,50 @@ models = {'dnn': load_model('dnn', embed_mat, seq_len),
           'rnn': load_model('rnn', embed_mat, seq_len)}
 
 
-def label2ind(labels, path_label_ind):
+def split(sents, labels, path_label):
     label_set = sorted(list(set(labels)))
-    label_inds = dict()
-    for i in range(len(label_set)):
-        label_inds[label_set[i]] = i
-    inds = [label_inds[label] for label in labels]
-    with open(path_label_ind, 'wb') as f:
-        pk.dump(label_inds, f)
-    return label_inds, np.array(inds)
-
-
-def cluster(sents, inds, ind_labels):
-    label_num = len(ind_labels)
-    cores = list()
-    labels = list()
-    for i in range(label_num):
-        ind_args = np.where(inds == i)
-        match_sents = sents[ind_args]
+    labels = np.array(labels)
+    sent_mat = list()
+    core_labels = list()
+    core_nums = list()
+    for match_label in label_set:
+        match_inds = np.where(labels == match_label)
+        match_sents = sents[match_inds]
+        sent_mat.append(match_sents)
         core_num = min(len(match_sents), max_core)
+        core_nums.append(core_num)
+        core_labels.extend([match_label] * core_num)
+    with open(path_label, 'wb') as f:
+        pk.dump(core_labels, f)
+    return sent_mat, core_nums
+
+
+def cluster(encode_mat, core_nums):
+    core_sents = list()
+    for sents, core_num in zip(encode_mat, core_nums):
         model = KMeans(n_clusters=core_num, n_init=10, max_iter=100)
-        model.fit(match_sents)
-        cores.extend(model.cluster_centers_.tolist())
-        labels.extend([ind_labels[i]] * core_num)
-    return np.array(cores), labels
+        model.fit(np.array(sents))
+        core_sents.extend(model.cluster_centers_.tolist())
+    return np.array(core_sents)
 
 
-def cache(sents, labels, path_label_ind):
-    label_inds, inds = label2ind(labels, path_label_ind)
-    ind_labels = dict()
-    for label, ind in label_inds.items():
-        ind_labels[ind] = label
+def cache(path_sent, path_train, path_label):
+    with open(path_sent, 'rb') as f:
+        sents = pk.load(f)
+    labels = flat_read(path_train, 'label')
+    sent_mat, core_nums = split(sents, labels, path_label)
     for name, model in models.items():
+        encode_mat = list()
+        for sents in sent_mat:
+            encode_mat.append(model.predict(sents))
+        core_sents = cluster(encode_mat, core_nums)
         path_cache = map_item(name + '_cache', paths)
-        encode_sents = model.predict(sents)
-        cores_labels = cluster(encode_sents, inds, ind_labels)
         with open(path_cache, 'wb') as f:
-            pk.dump(cores_labels, f)
+            pk.dump(core_sents, f)
 
 
 if __name__ == '__main__':
-    path_label_ind = 'feat/label_ind.pkl'
-    cache(sents, labels, path_label_ind)
+    path_train = 'data/train.csv'
+    path_sent = 'feat/sent_train.pkl'
+    path_label = 'cache/label.pkl'
+    cache(path_sent, path_train, path_label)
