@@ -11,7 +11,7 @@ from nn_arch import dnn_build, cnn_build, rnn_build
 from util import map_item
 
 
-batch_size = 32
+batch_size = 128
 
 path_embed = 'feat/embed.pkl'
 path_pair = 'feat/pair_train.pkl'
