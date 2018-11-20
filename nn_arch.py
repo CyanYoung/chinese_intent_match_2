@@ -5,12 +5,12 @@ from keras.layers import Lambda, Concatenate, Subtract, Multiply
 import keras.backend as K
 
 
-def dnn_build(embed_input1, embed_input2):
+def dnn(embed_input1, embed_input2):
     mean = Lambda(lambda a: K.mean(a, axis=1), name='mean')
     da1 = Dense(200, activation='relu', name='encode1')
     da2 = Dense(200, activation='relu', name='encode2')
-    da3 = Dense(200, activation='relu', name='classify1')
-    da4 = Dense(1, activation='sigmoid', name='classify2')
+    da3 = Dense(200, activation='relu', name='match1')
+    da4 = Dense(1, activation='sigmoid', name='match2')
     x = mean(embed_input1)
     x = da1(x)
     x = da2(x)
@@ -25,7 +25,7 @@ def dnn_build(embed_input1, embed_input2):
     return da4(z)
 
 
-def dnn_cache(embed_input):
+def dnn_encode(embed_input):
     mean = Lambda(lambda a: K.mean(a, axis=1), name='mean')
     da1 = Dense(200, activation='relu', name='encode1')
     da2 = Dense(200, activation='relu', name='encode2')
@@ -34,7 +34,7 @@ def dnn_cache(embed_input):
     return da2(x)
 
 
-def cnn_build(embed_input1, embed_input2):
+def cnn(embed_input1, embed_input2):
     ca1 = SeparableConv1D(filters=64, kernel_size=1, padding='same', activation='relu', name='conv1')
     ca2 = SeparableConv1D(filters=64, kernel_size=2, padding='same', activation='relu', name='conv2')
     ca3 = SeparableConv1D(filters=64, kernel_size=3, padding='same', activation='relu', name='conv3')
@@ -42,8 +42,8 @@ def cnn_build(embed_input1, embed_input2):
     concat1 = Concatenate()
     concat2 = Concatenate()
     da1 = Dense(200, activation='relu', name='encode')
-    da2 = Dense(200, activation='relu', name='classify1')
-    da3 = Dense(1, activation='sigmoid', name='classify2')
+    da2 = Dense(200, activation='relu', name='match1')
+    da3 = Dense(1, activation='sigmoid', name='match2')
     x1 = ca1(embed_input1)
     x1 = mp(x1)
     x2 = ca2(embed_input1)
@@ -68,7 +68,7 @@ def cnn_build(embed_input1, embed_input2):
     return da3(z)
 
 
-def cnn_cache(embed_input):
+def cnn_encode(embed_input):
     ca1 = SeparableConv1D(filters=64, kernel_size=1, padding='same', activation='relu', name='conv1')
     ca2 = SeparableConv1D(filters=64, kernel_size=2, padding='same', activation='relu', name='conv2')
     ca3 = SeparableConv1D(filters=64, kernel_size=3, padding='same', activation='relu', name='conv3')
@@ -84,11 +84,11 @@ def cnn_cache(embed_input):
     return da(x)
 
 
-def rnn_build(embed_input1, embed_input2):
+def rnn(embed_input1, embed_input2):
     mask = Masking()
     ra = LSTM(200, activation='tanh', name='encode')
-    da1 = Dense(200, activation='relu', name='classify1')
-    da2 = Dense(1, activation='sigmoid', name='classify2')
+    da1 = Dense(200, activation='relu', name='match1')
+    da2 = Dense(1, activation='sigmoid', name='match2')
     x = mask(embed_input1)
     x = ra(x)
     y = mask(embed_input2)
@@ -101,15 +101,15 @@ def rnn_build(embed_input1, embed_input2):
     return da2(z)
 
 
-def rnn_cache(embed_input):
+def rnn_encode(embed_input):
     ra = LSTM(200, activation='tanh', name='encode')
     x = Masking()(embed_input)
     return ra(x)
 
 
-def merge(x, y):
-    da1 = Dense(200, activation='relu', name='classify1')
-    da2 = Dense(1, activation='sigmoid', name='classify2')
+def match(x, y):
+    da1 = Dense(200, activation='relu', name='match1')
+    da2 = Dense(1, activation='sigmoid', name='match2')
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])

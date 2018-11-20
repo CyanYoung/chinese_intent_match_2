@@ -8,12 +8,12 @@ from keras.utils import plot_model
 
 from sklearn.cluster import KMeans
 
-from nn_arch import dnn_cache, cnn_cache, rnn_cache
+from nn_arch import dnn_encode, cnn_encode, rnn_encode
 
 from util import flat_read, map_item
 
 
-def define_model(name, embed_mat, seq_len):
+def define_encode(name, embed_mat, seq_len):
     vocab_num, embed_len = embed_mat.shape
     embed = Embedding(input_dim=vocab_num, output_dim=embed_len, input_length=seq_len, name='embed')
     input = Input(shape=(seq_len,))
@@ -26,8 +26,8 @@ def define_model(name, embed_mat, seq_len):
     return model
 
 
-def load_model(name, embed_mat, seq_len):
-    model = define_model(name, embed_mat, seq_len)
+def load_encode(name, embed_mat, seq_len):
+    model = define_encode(name, embed_mat, seq_len)
     model.load_weights(map_item(name, paths), by_name=True)
     return model
 
@@ -39,9 +39,9 @@ path_embed = 'feat/embed.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 
-funcs = {'dnn': dnn_cache,
-         'cnn': cnn_cache,
-         'rnn': rnn_cache}
+funcs = {'dnn': dnn_encode,
+         'cnn': cnn_encode,
+         'rnn': rnn_encode}
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
@@ -49,13 +49,13 @@ paths = {'dnn': 'model/dnn.h5',
          'dnn_cache': 'cache/dnn.pkl',
          'cnn_cache': 'cache/cnn.pkl',
          'rnn_cache': 'cache/rnn.pkl',
-         'dnn_plot': 'model/plot/dnn_cache.png',
-         'cnn_plot': 'model/plot/cnn_cache.png',
-         'rnn_plot': 'model/plot/rnn_cache.png'}
+         'dnn_plot': 'model/plot/dnn_encode.png',
+         'cnn_plot': 'model/plot/cnn_encode.png',
+         'rnn_plot': 'model/plot/rnn_encode.png'}
 
-models = {'dnn': load_model('dnn', embed_mat, seq_len),
-          'cnn': load_model('cnn', embed_mat, seq_len),
-          'rnn': load_model('rnn', embed_mat, seq_len)}
+models = {'dnn': load_encode('dnn', embed_mat, seq_len),
+          'cnn': load_encode('cnn', embed_mat, seq_len),
+          'rnn': load_encode('rnn', embed_mat, seq_len)}
 
 
 def split(sents, labels, path_label):
