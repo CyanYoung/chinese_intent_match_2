@@ -80,7 +80,7 @@ def cluster(encode_mat, core_nums):
     core_sents = list()
     for sents, core_num in zip(encode_mat, core_nums):
         model = KMeans(n_clusters=core_num, n_init=10, max_iter=100)
-        model.fit(np.array(sents))
+        model.fit(sents)
         core_sents.extend(model.cluster_centers_.tolist())
     return np.array(core_sents)
 
