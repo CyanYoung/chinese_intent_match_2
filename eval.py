@@ -2,11 +2,9 @@ import pickle as pk
 
 import numpy as np
 
-from keras.models import load_model
-
 from sklearn.metrics import accuracy_score
 
-from match import predict
+from match import models, predict
 
 from util import flat_read, map_item
 
@@ -26,14 +24,6 @@ with open(path_pair, 'rb') as f:
     pairs = pk.load(f)
 with open(path_flag, 'rb') as f:
     flags = pk.load(f)
-
-paths = {'dnn': 'model/dnn.h5',
-         'cnn': 'model/cnn.h5',
-         'rnn': 'model/rnn.h5'}
-
-models = {'dnn': load_model(map_item('dnn', paths)),
-          'cnn': load_model(map_item('cnn', paths)),
-          'rnn': load_model(map_item('rnn', paths))}
 
 
 def test_pair(name, pairs, flags, thre):
