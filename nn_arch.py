@@ -21,7 +21,7 @@ def dnn(embed_input1, embed_input2):
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
     z = da3(z)
-    z = Dropout(0.5)(z)
+    z = Dropout(0.2)(z)
     return da4(z)
 
 
@@ -64,7 +64,7 @@ def cnn(embed_input1, embed_input2):
     prod = Multiply()([x, y])
     z = concat2([x, y, diff, prod])
     z = da2(z)
-    z = Dropout(0.5)(z)
+    z = Dropout(0.2)(z)
     return da3(z)
 
 
@@ -97,7 +97,7 @@ def rnn(embed_input1, embed_input2):
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
     z = da1(z)
-    z = Dropout(0.5)(z)
+    z = Dropout(0.2)(z)
     return da2(z)
 
 
@@ -114,5 +114,5 @@ def match(x, y):
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
     z = da1(z)
-    z = Dropout(0.5)(z)
+    z = Dropout(0.2)(z)
     return da2(z)
