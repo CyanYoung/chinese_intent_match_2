@@ -6,7 +6,7 @@ import keras.backend as K
 
 
 def dnn(embed_input1, embed_input2):
-    mean = Lambda(lambda a: K.mean(a, axis=1), name='mean')
+    mean = Lambda(lambda a: K.mean(a, axis=1))
     da1 = Dense(200, activation='relu', name='encode1')
     da2 = Dense(200, activation='relu', name='encode2')
     da3 = Dense(200, activation='relu', name='match1')
@@ -26,7 +26,7 @@ def dnn(embed_input1, embed_input2):
 
 
 def dnn_encode(embed_input):
-    mean = Lambda(lambda a: K.mean(a, axis=1), name='mean')
+    mean = Lambda(lambda a: K.mean(a, axis=1))
     da1 = Dense(200, activation='relu', name='encode1')
     da2 = Dense(200, activation='relu', name='encode2')
     x = mean(embed_input)
