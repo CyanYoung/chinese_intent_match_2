@@ -27,7 +27,7 @@ def save_pair(path, pairs):
             f.write(text1 + ',' + text2 + ',' + str(flag) + '\n')
 
 
-def extend(pairs, path_extra_pair):
+def expand(pairs, path_extra_pair):
     extra_pairs = list()
     for text1, text2, flag in pd.read_csv(path_extra_pair).values:
         extra_pairs.append((text1, text2, flag))
@@ -68,7 +68,7 @@ def make_pair(path_univ_dir, path_train_pair, path_test_pair, path_extra_pair):
                     pairs.append((texts[j], neg_text, 0))
     shuffle(pairs)
     bound = int(len(pairs) * 0.9)
-    train_pairs = extend(pairs[:bound], path_extra_pair)
+    train_pairs = expand(pairs[:bound], path_extra_pair)
     save_pair(path_train_pair, train_pairs)
     save_pair(path_test_pair, pairs[bound:])
 
