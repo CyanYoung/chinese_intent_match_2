@@ -6,7 +6,7 @@ from keras.models import Model
 from keras.layers import Input, Embedding
 from keras.utils import plot_model
 
-from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN, KMeans
 
 from nn_arch import dnn_encode, cnn_encode, rnn_encode
 
@@ -39,6 +39,12 @@ path_embed = 'feat/embed.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 
+path_sent = 'feat/sent_train.pkl'
+path_train = 'data/train.csv'
+with open(path_sent, 'rb') as f:
+    sents = pk.load(f)
+labels = flat_read(path_train, 'label')
+
 funcs = {'dnn': dnn_encode,
          'cnn': cnn_encode,
          'rnn': rnn_encode}
@@ -58,23 +64,24 @@ models = {'dnn': load_encode('dnn', embed_mat, seq_len),
           'rnn': load_encode('rnn', embed_mat, seq_len)}
 
 
-def split(sents, labels, path_label):
+def split(sents, labels):
     label_set = sorted(list(set(labels)))
     labels = np.array(labels)
-    sent_mat, core_labels, core_nums = list(), list(), list()
+    sent_mat, label_mat = list(), list()
     for match_label in label_set:
         match_inds = np.where(labels == match_label)
         match_sents = sents[match_inds]
         sent_mat.append(match_sents)
-        core_num = min(len(match_sents), max_core)
-        core_nums.append(core_num)
-        core_labels.extend([match_label] * core_num)
-    with open(path_label, 'wb') as f:
-        pk.dump(core_labels, f)
-    return sent_mat, core_nums
+        match_labels = [match_label] * len(match_sents)
+        label_mat.append(match_labels)
+    return sent_mat, label_mat
 
 
-def cluster(encode_mat, core_nums):
+def clean(encode_mat, label_mat):
+    pass
+
+
+def merge(encode_mat, core_nums):
     core_sents = list()
     for sents, core_num in zip(encode_mat, core_nums):
         model = KMeans(n_clusters=core_num, n_init=10, max_iter=100)
@@ -83,23 +90,18 @@ def cluster(encode_mat, core_nums):
     return np.array(core_sents)
 
 
-def cache(path_sent, path_train, path_label):
-    with open(path_sent, 'rb') as f:
-        sents = pk.load(f)
-    labels = flat_read(path_train, 'label')
-    sent_mat, core_nums = split(sents, labels, path_label)
+def cache(sents, labels):
+    sent_mat, label_mat = split(sents, labels)
     for name, model in models.items():
         encode_mat = list()
         for sents in sent_mat:
             encode_mat.append(model.predict(sents))
-        core_sents = cluster(encode_mat, core_nums)
+        encode_mat, core_nums = clean(encode_mat, label_mat)
+        core_sents = merge(encode_mat, label_mat)
         path_cache = map_item(name + '_cache', paths)
         with open(path_cache, 'wb') as f:
             pk.dump(core_sents, f)
 
 
 if __name__ == '__main__':
-    path_train = 'data/train.csv'
-    path_sent = 'feat/sent_train.pkl'
-    path_label = 'cache/label.pkl'
-    cache(path_sent, path_train, path_label)
+    cache(sents, labels)
