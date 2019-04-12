@@ -80,11 +80,19 @@ def split(sents, labels):
 
 
 def clean(encode_mat, label_mat):
-    pass
+    for i in range(len(encode_mat)):
+        model = IsolationForest(n_estimators=100, contamination=0.1)
+        model.fit(encode_mat[i])
+        flags = model.predict(encode_mat[i])
+        count = np.sum(flags > 0)
+        if count > max_core:
+            inds = np.where(flags < 0)
+            encode_mat[i] = np.delete(encode_mat[i], inds, axis=0)
+    return encode_mat, label_mat
 
 
 def merge(encode_mat, label_mat):
-    core_sents, core_labels = list()
+    core_sents, core_labels = list(), list()
     for sents, labels in zip(encode_mat, label_mat):
         core_num = min(len(sents), max_core)
         model = KMeans(n_clusters=core_num, n_init=10, max_iter=100)
