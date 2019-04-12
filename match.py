@@ -51,13 +51,10 @@ syno_dict = load_pair(path_syno)
 
 path_embed = 'feat/embed.pkl'
 path_word2ind = 'model/word2ind.pkl'
-path_label = 'cache/label.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 with open(path_word2ind, 'rb') as f:
     word2ind = pk.load(f)
-with open(path_label, 'rb') as f:
-    core_labels = pk.load(f)
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
@@ -84,7 +81,7 @@ def predict(text, name, vote):
         text = re.sub(word_re, word_type, text)
     text = word_replace(text, homo_dict)
     text = word_replace(text, syno_dict)
-    core_sents = map_item(name, caches)
+    core_sents, core_labels = map_item(name, caches)
     seq = word2ind.texts_to_sequences([text])[0]
     pad_seq = pad_sequences([seq], maxlen=seq_len)
     encode = map_item(name + '_encode', models)
