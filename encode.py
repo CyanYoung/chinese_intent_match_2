@@ -6,7 +6,9 @@ from keras.models import Model
 from keras.layers import Input, Embedding
 from keras.utils import plot_model
 
-from sklearn.cluster import DBSCAN, KMeans
+from sklearn.ensemble import IsolationForest
+
+from sklearn.cluster import KMeans
 
 from nn_arch import dnn_encode, cnn_encode, rnn_encode
 
@@ -81,13 +83,15 @@ def clean(encode_mat, label_mat):
     pass
 
 
-def merge(encode_mat, core_nums):
-    core_sents = list()
-    for sents, core_num in zip(encode_mat, core_nums):
+def merge(encode_mat, label_mat):
+    core_sents, core_labels = list()
+    for sents, labels in zip(encode_mat, label_mat):
+        core_num = min(len(sents), max_core)
         model = KMeans(n_clusters=core_num, n_init=10, max_iter=100)
         model.fit(sents)
         core_sents.extend(model.cluster_centers_.tolist())
-    return np.array(core_sents)
+        core_labels.extend([labels[0]] * core_num)
+    return np.array(core_sents), np.array(core_labels)
 
 
 def cache(sents, labels):
@@ -96,11 +100,11 @@ def cache(sents, labels):
         encode_mat = list()
         for sents in sent_mat:
             encode_mat.append(model.predict(sents))
-        encode_mat, core_nums = clean(encode_mat, label_mat)
-        core_sents = merge(encode_mat, label_mat)
+        encode_mat, label_mat = clean(encode_mat, label_mat)
+        core_sents, core_labels = merge(encode_mat, label_mat)
         path_cache = map_item(name + '_cache', paths)
         with open(path_cache, 'wb') as f:
-            pk.dump(core_sents, f)
+            pk.dump((core_sents, core_labels), f)
 
 
 if __name__ == '__main__':
