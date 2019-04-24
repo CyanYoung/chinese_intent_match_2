@@ -40,7 +40,7 @@ def test_pair(name, pairs, flags, thre):
     model = map_item(name, models)
     sent1s, sent2s = pairs
     probs = model.predict([sent1s, sent2s])
-    probs = np.reshape(probs, (1, -1))[0]
+    probs = np.squeeze(probs, axis=-1)
     preds = probs > thre
     f1 = f1_score(flags, preds)
     print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(flags, preds)))

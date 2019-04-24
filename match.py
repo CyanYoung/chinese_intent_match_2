@@ -77,7 +77,7 @@ def predict(text, name, vote):
     encode_mat = np.repeat(encode_seq, len(core_sents), axis=0)
     model = map_item(name + '_match', models)
     probs = model.predict([encode_mat, core_sents])
-    probs = np.reshape(probs, (1, -1))[0]
+    probs = np.squeeze(probs, axis=-1)
     max_probs = sorted(probs, reverse=True)[:vote]
     max_inds = np.argsort(-probs)[:vote]
     max_preds = [core_labels[ind] for ind in max_inds]
