@@ -1,6 +1,6 @@
 from keras.layers import Dense, SeparableConv1D, LSTM
-from keras.layers import Dropout, GlobalMaxPooling1D, Masking
-from keras.layers import Lambda, Concatenate, Subtract, Multiply
+from keras.layers import Dropout, GlobalMaxPooling1D, Bidirectional, Lambda
+from keras.layers import Concatenate, Subtract, Multiply
 
 import keras.backend as K
 
@@ -83,13 +83,15 @@ def cnn_encode(embed_input):
 
 
 def rnn(embed_input1, embed_input2):
-    ra = LSTM(200, activation='tanh', name='encode')
+    ra = LSTM(200, activation='tanh', return_sequences=True)
+    ba = Bidirectional(ra, name='encode')
+    mp = GlobalMaxPooling1D()
     da1 = Dense(200, activation='relu', name='match1')
     da2 = Dense(1, activation='sigmoid', name='match2')
-    x = Masking()(embed_input1)
-    x = ra(x)
-    y = Masking()(embed_input2)
-    y = ra(y)
+    x = ba(embed_input1)
+    x = mp(x)
+    y = ba(embed_input2)
+    y = mp(y)
     diff = Lambda(lambda a: K.abs(a))(Subtract()([x, y]))
     prod = Multiply()([x, y])
     z = Concatenate()([x, y, diff, prod])
@@ -99,9 +101,11 @@ def rnn(embed_input1, embed_input2):
 
 
 def rnn_encode(embed_input):
-    ra = LSTM(200, activation='tanh', name='encode')
-    x = Masking()(embed_input)
-    return ra(x)
+    ra = LSTM(200, activation='tanh', return_sequences=True)
+    ba = Bidirectional(ra, name='encode')
+    mp = GlobalMaxPooling1D()
+    x = ba(embed_input)
+    return mp(x)
 
 
 def match(x, y):
