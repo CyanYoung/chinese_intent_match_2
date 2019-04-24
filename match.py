@@ -26,7 +26,10 @@ def define_match(encode_len):
 
 
 def load_match(name, encode_len):
-    model = define_match(encode_len)
+    if name == 'rnn':
+        model = define_match(encode_len * 2)
+    else:
+        model = define_match(encode_len)
     model.load_weights(map_item(name, paths), by_name=True)
     return model
 
