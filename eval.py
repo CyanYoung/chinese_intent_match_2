@@ -11,6 +11,8 @@ from match import ind_labels, predict
 from util import flat_read, map_item
 
 
+detail = False
+
 path_test = 'data/test.csv'
 path_label = 'feat/label_test.pkl'
 texts = flat_read(path_test, 'text')
@@ -49,9 +51,10 @@ def test_pair(name, pairs, flags, thre):
     preds = probs > thre
     f1 = f1_score(flags, preds)
     print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(flags, preds)))
-    for flag, prob, text1, text2, pred in zip(flags, probs, text1s, text2s, preds):
-        if flag != pred:
-            print('{} {:.3f} {} | {}'.format(flag, prob, text1, text2))
+    if detail:
+        for flag, prob, text1, text2, pred in zip(flags, probs, text1s, text2s, preds):
+            if flag != pred:
+                print('{} {:.3f} {} | {}'.format(flag, prob, text1, text2))
 
 
 def test(name, texts, labels, vote):
@@ -66,9 +69,10 @@ def test(name, texts, labels, vote):
             f.write('%s,%.2f,%.2f\n' % (ind_labels[i], precs[i], recs[i]))
     f1 = f1_score(labels, preds, average='weighted')
     print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(labels, preds)))
-    for text, label, pred in zip(texts, labels, preds):
-        if label != pred:
-            print('{}: {} -> {}'.format(text, ind_labels[label], ind_labels[pred]))
+    if detail:
+        for text, label, pred in zip(texts, labels, preds):
+            if label != pred:
+                print('{}: {} -> {}'.format(text, ind_labels[label], ind_labels[pred]))
 
 
 if __name__ == '__main__':
