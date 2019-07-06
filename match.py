@@ -41,8 +41,8 @@ def load_match(name, encode_len):
 
 def load_cache(path_cache):
     with open(path_cache, 'rb') as f:
-        core_sents = pk.load(f)
-    return core_sents
+        cache_sents = pk.load(f)
+    return cache_sents
 
 
 seq_len = 30
@@ -51,12 +51,15 @@ encode_len = 200
 path_embed = 'feat/embed.pkl'
 path_word2ind = 'model/word2ind.pkl'
 path_label_ind = 'feat/label_ind.pkl'
+path_label = 'feat/label_train.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 with open(path_word2ind, 'rb') as f:
     word2ind = pk.load(f)
 with open(path_label_ind, 'rb') as f:
     label_inds = pk.load(f)
+with open(path_label, 'rb') as f:
+    labels = pk.load(f)
 
 ind_labels = ind2label(label_inds)
 
@@ -81,18 +84,18 @@ models = {'dnn_encode': load_encode('dnn', embed_mat, seq_len),
 
 def predict(text, name, vote):
     text = clean(text)
-    core_sents, core_labels = map_item(name, caches)
+    cache_sents = map_item(name, caches)
     seq = word2ind.texts_to_sequences([text])[0]
     pad_seq = pad_sequences([seq], maxlen=seq_len)
     encode = map_item(name + '_encode', models)
     encode_seq = encode.predict([pad_seq])
-    encode_mat = np.repeat(encode_seq, len(core_sents), axis=0)
+    encode_mat = np.repeat(encode_seq, len(cache_sents), axis=0)
     model = map_item(name + '_match', models)
-    probs = model.predict([encode_mat, core_sents])
+    probs = model.predict([encode_mat, cache_sents])
     probs = np.squeeze(probs, axis=-1)
     max_probs = sorted(probs, reverse=True)[:vote]
     max_inds = np.argsort(-probs)[:vote]
-    max_preds = [core_labels[ind] for ind in max_inds]
+    max_preds = [labels[ind] for ind in max_inds]
     if __name__ == '__main__':
         formats = list()
         for pred, prob in zip(max_preds, max_probs):
